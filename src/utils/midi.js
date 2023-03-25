@@ -35,7 +35,7 @@ export function sendPC(presetNumber) {
         if (P[port_id].enabled && P[port_id].type === PORT_OUTPUT) {
             const port = portById(port_id);
             if (global.dev) console.log(`send PC ${presetNumber} to ${port.name} ${port.id}`);
-            port.sendControlChange(WebMidi.MIDI_CONTROL_CHANGE_MESSAGES.bankselectcoarse, presetNumber < 128 ? 0 : 1);
+            port.sendControlChange(WebMidi.MIDI_CONTROL_CHANGE_MESSAGES.bankselectcoarse, Math.floor(presetNumber/128));
             port.sendProgramChange(presetNumber % 128);
         }
     }
@@ -55,7 +55,7 @@ function sendNameRequest(presetNumber) {
     // presetNumber is 1-indexed
     // in the request we must use 0-indexed
 
-    const bank = presetNumber > 127 ? 1 : 0;
+    const bank = Math.floor(presetNumber / 128);
     const preset = presetNumber % 128;
 
     // if (global.dev) console.log(`sendNameRequest ${presetNumber}`, bank, preset);
@@ -89,7 +89,7 @@ function sendPresetRequest(presetNumber) {
     // presetNumber is 1-indexed
     // in the request we must use 0-indexed
 
-    const bank = presetNumber > 127 ? 1 : 0;
+    const bank = Math.floor(presetNumber / 128);
     const preset = presetNumber % 128;
 
     state.last_received_midi_msg = 0;

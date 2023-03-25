@@ -2,6 +2,7 @@ import React, {Component, Fragment} from "react";
 import "./PresetsGrid.css";
 import {inject, observer} from "mobx-react";
 import {readPreset, sendPC} from "../utils/midi";
+import { MAX_PATCHES } from "../model";
 
 class PresetsGrid extends Component {
 
@@ -106,7 +107,7 @@ class PresetsGrid extends Component {
 
     prev = (d = 1) => {
         const n = this.props.state.preset_number - d;
-        this.props.state.setPresetNumber(n < 0 ? 255 : n);
+        this.props.state.setPresetNumber(n < 0 ? (MAX_PATCHES-1) : n);
         if (this.props.state.send_pc) {
             sendPC(this.props.state.preset_number);
         }
@@ -114,7 +115,7 @@ class PresetsGrid extends Component {
 
     next = (d = 1) => {
         const n = this.props.state.preset_number + d;
-        this.props.state.setPresetNumber(n > 255 ? 0 : n);
+        this.props.state.setPresetNumber(n > (MAX_PATCHES-1) ? 0 : n);
         if (this.props.state.send_pc) {
             sendPC(this.props.state.preset_number);
         }
@@ -132,10 +133,10 @@ class PresetsGrid extends Component {
         const S = this.props.state;
 
         const pc = [];
-        for (let i=0; i<256; i++) {
+        for (let i=0; i<MAX_PATCHES; i++) {
 
             let classname = i === S.preset_number ? 'sel' : '';
-            if (S.presets.length && (S.presets.length > i && S.presets[i])) {
+            if (S.presets && S.presets.length && (S.presets.length > i && S.presets[i])) {
                 classname += ' loaded';
             }
             pc.push(

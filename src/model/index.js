@@ -217,7 +217,7 @@ const _0_100 = function (v) {
 /*
 const arpSyncOn = function () {
 
-    if (!this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
+    if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
         return 0;
     }
     const data = this.presets[this.preset_number].data;
@@ -250,6 +250,9 @@ export const CATEGORY = [
 
 export const DEFAULT_msb_mask = 0x01;
 export const DEFAULT_sign_mask = 0x02;
+
+export const MAX_BANKS = 3
+export const MAX_PATCHES = (MAX_BANKS * 128)
 
 // controls
 export const OSC_TYPE = Symbol('OSC_TYPE');

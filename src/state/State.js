@@ -17,11 +17,10 @@ import {
     MOD_SRC_KEY_ARP,
     MOD_SRC_PRESS,
     MOD_SRC_LFO,
-    MOD_SRC_ENV, FW1, FW2, CATEGORY
+    MOD_SRC_ENV, FW1, FW2, CATEGORY, MAX_PATCHES
 } from "../model";
 import {MSG_DATA, MSG_NAME, portById} from "../utils/midi";
 import {h, hs} from "../utils/hexstring";
-import {savePreferences} from "../utils/preferences";
 import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from "lz-string";
 import axios from "axios";
 import {getParameterByName} from "../utils/sharing";
@@ -29,18 +28,18 @@ import {getParameterByName} from "../utils/sharing";
 class State {
 
     // The number of the currently displayed preset
-    preset_number = 0;  // 0..255 display as 1..256
+    preset_number = 0;  // 0..(MAX_PATCHES-1) display as 1..(MAX_PATCHES)
 
     // input field in preset selector
     preset_number_string = '1';
 
     // The preset number used in MIDI
-    preset_number_comm = null;      // 0..255 display as 1..256
+    preset_number_comm = null;      // 0..(MAX_PATCHES-1) display as 1..(MAX_PATCHES)
 
     // All the presets
     // This is an array of {name: String; data: []}
     // We prefill the array with null value to avoid OutOfBound exceptions when accessing the array with MobX
-    presets = new Array(256).fill(null);   // index 0..255
+    presets = new Array(MAX_PATCHES).fill(null);   // index 0..(MAX_PATCHES-1)
 
     // filename = null;    // presets file
 
@@ -93,7 +92,7 @@ class State {
 
         const def = FW2;
 
-        if (!this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
+        if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
             return def;
         }
 
@@ -142,6 +141,7 @@ class State {
     }
 
     checkAllPresets() {
+        if (!this.presets) return;
         // if (global.dev) console.log("checkAllPresets");
         for (let i=0; i<this.presets.length; i++) {
             if (this.presets[i] && !this.presets[i].hasOwnProperty("supported")) {
@@ -172,7 +172,7 @@ class State {
             return;
         }
 
-        if (!this.presets.length || (this.presets.length <= this.preset_number_comm) || this.presets[this.preset_number_comm] === null) {
+        if (!this.presets || !this.presets.length || (this.presets.length <= this.preset_number_comm) || this.presets[this.preset_number_comm] === null) {
 
             // create the preset struct:
             this.presets[this.preset_number_comm] = {
@@ -221,8 +221,8 @@ class State {
     }
 
     /**
-     * If string, range is 1..256
-     * If number, range is 0..255
+     * If string, range is 1..(MAX_PATCHES)
+     * If number, range is 0..(MAX_PATCHES-1)
      * @param number
      */
     setPresetNumber(number) {
@@ -236,14 +236,14 @@ class State {
         if (typeof number === 'string') {
             num = parseInt(number, 10);
         } else {
-            num = number + 1;       // displayed value is 1..256
+            num = number + 1;       // displayed value is 1..MAX_PATCHES
         }
 
         if (isNaN(num)) {
             num = 1;
-        } else if (num > 256) {
-            s = '256';
-            num = 256;
+        } else if (num > MAX_PATCHES) {
+            s = MAX_PATCHES.toString();
+            num = MAX_PATCHES;
         } else if (num < 1) {
             s = '1';
             num = 1;
@@ -256,7 +256,6 @@ class State {
         } else {
             this.preset_number_string = s;
             this.preset_number = num - 1;
-            // savePreferences({preset:s});
         }
     }
 
@@ -388,7 +387,7 @@ class State {
 
         const n = preset_number >= 0 ? preset_number : this.preset_number;
 
-        if (!this.presets.length || (this.presets.length < n) || !this.presets[n]) {
+        if (!this.presets || !this.presets.length || (this.presets.length < n) || !this.presets[n]) {
             return 0;
         }
 
@@ -418,7 +417,7 @@ class State {
 
     switchValue(m, return_raw=false) {
 
-        if (!this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
+        if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
             return 0;
         }
 
@@ -454,7 +453,7 @@ class State {
      */
     modMatrixValue(src, dest, return_raw=false) {
 
-        if (!this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
+        if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
             return 0;
         }
 
@@ -489,7 +488,7 @@ class State {
      */
     modAssignDest(slot) {
 
-        if (!this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
+        if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
             return 0;
         }
 
@@ -508,7 +507,7 @@ class State {
      */
     modAssignControlNum(slot) {
 
-        if (!this.presets.length || (this.presets.length < this.preset_number)) {
+        if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number)) {
             return 0;
         }
 
@@ -546,7 +545,7 @@ class State {
 /*
     arpSyncOn() {
 
-        if (!this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
+        if (!this.presets || !this.presets.length || (this.presets.length < this.preset_number) || !this.presets[this.preset_number]) {
             return 0;
         }
         const data = this.presets[this.preset_number].data;
@@ -559,7 +558,7 @@ class State {
 */
 
     presetName(number) {  //TODO: change method name
-        if (this.presets.length && (number < this.presets.length) && this.presets[number]) {
+        if (this.presets && this.presets.length && (number < this.presets.length) && this.presets[number]) {
             // console.log("preset name", this.presets[number]);
             return this.presets[number].name;
         } else {
@@ -568,7 +567,7 @@ class State {
     }
 
     presetCat(number) {  //TODO: change method name
-        if (this.presets.length && (number < this.presets.length) && this.presets[number]) {
+        if (this.presets && this.presets.length && (number < this.presets.length) && this.presets[number]) {
             // && this.presets[number].hasOwnProperty("cat")
             // console.log("preset cat", this.presets[number]);
             if (this.presets[number].cat < CATEGORY.length)
@@ -654,7 +653,7 @@ class State {
                 }
             );
 
-            console.log("getShortUrl: has posted", res);
+            console.log("getShortUrl: has posted", JSON.stringify(res));
 
             if (res.status === 200) {
                 this.presets[this.preset_number].shortUrl = res.data.shortUrl;
