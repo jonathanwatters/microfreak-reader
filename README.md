@@ -1,6 +1,20 @@
 
 ---
 
+# MINOR TWEAKS ONLY - NOW "WORKS" LOCALLY ON MY MicroFreak (Firmware V4.0.3)
+
+All I wanted to do was change MicroFreak patches from the computer... 
+No idea why Arturia's MIDI Control Center does not seem to send program change to change the active patch on the MicroFreak.
+I forked https://github.com/francoisgeorgy/microfreak-reader as suggested and updated to support 384 patches. 
+I did not change any of the studiocode.dev references yet.
+Still it's maybe not perfect, but works locally enough for me, for now.
+
+Many thanks to original author François Georgy
+
+Jonathan
+
+
+Original README.md below:
 # NOT MAINTAINED ANYMORE
 
 **I'm sorry but this project is not maintained anymore. I don't have the resources (time, hardware) to update it. Feel free to fork it.**
