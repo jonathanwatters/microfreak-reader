@@ -6,7 +6,7 @@ import {savePreferences} from "../utils/preferences";
 import {readFile} from "../utils/files";
 import {faPrint} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { MAX_BANKS, MAX_PATCHES } from "../model";
+import {MAX_PATCHES } from "../model";
 
 class PresetSelector extends Component {
 
@@ -111,7 +111,7 @@ class PresetSelector extends Component {
     };
 
     readNTo256 = () => {
-        this.readAll((this.props.state.preset_number + 1) % MAX_PATCHES, MAX_BANKS, this.state.unread);
+        this.readAll((this.props.state.preset_number + 1) % MAX_PATCHES, (MAX_PATCHES-1), this.state.unread);
     };
 
     abortAll = () => {
