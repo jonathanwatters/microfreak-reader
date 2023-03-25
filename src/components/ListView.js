@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {inject, observer} from "mobx-react";
-import {CONTROL, OSC_TYPE} from "../model";
+import {CONTROL, MAX_PATCHES, OSC_TYPE} from "../model";
 
 class ListView extends Component {
 
@@ -17,7 +17,7 @@ class ListView extends Component {
 
         let num_presets = 0;
         const presets = [];
-        for (let i=0; i<256; i++) {
+        for (let i=0; i<(MAX_PATCHES); i++) {
             if (S.presetExists(i)) {
                 num_presets++;
                 const v = S.controlValue(control, true, i);
